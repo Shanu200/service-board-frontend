@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { useRouter } from "next/navigation";
 
-import JobForm from "@/components/jobs/jobForm";
+import JobForm from "@/components/jobs/JobForm";
 
 import { isAuthenticated } from "@/util/auth";
 
