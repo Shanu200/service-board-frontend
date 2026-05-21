@@ -15,6 +15,8 @@ export default function ProfilePage() {
 
   const [loading, setLoading] = useState(true);
 
+    const [currentUser, setCurrentUser] = useState<any>(null);
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -22,6 +24,16 @@ export default function ProfilePage() {
     if (!token) {
       router.push("/login");
       return;
+    }
+
+        const user =
+      localStorage.getItem("user");
+
+    if (user) {
+
+      setCurrentUser(
+        JSON.parse(user)
+      );
     }
 
     fetchMyJobs();
@@ -33,11 +45,14 @@ export default function ProfilePage() {
 
       const token = localStorage.getItem("token");
 
-      const res = await API.get("/jobs", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await API.get(
+  "/jobs/my-jobs",
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       setJobs(res.data);
 
@@ -80,7 +95,7 @@ export default function ProfilePage() {
     <div className="p-10">
 
       <h1 className="text-4xl font-bold mb-8">
-        My Profile
+        {currentUser?.name}'s Profile
       </h1>
 
       <h2 className="text-2xl mb-4">

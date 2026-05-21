@@ -36,7 +36,13 @@ export default function LoginForm() {
         res.data.token
       );
 
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
+
       router.push("/");
+      
     } catch (error) {
       console.log(error);
     }
