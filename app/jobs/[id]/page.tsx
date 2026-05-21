@@ -26,7 +26,6 @@ export default function JobDetailsPage() {
   const [currentUser, setCurrentUser] =
     useState<any>(null);
 
-  // FETCH JOB
   const fetchJob = async () => {
 
     try {
@@ -59,7 +58,6 @@ export default function JobDetailsPage() {
 
       router.push("/login");
 
-      return;
     }
 
     if (user) {
@@ -75,7 +73,6 @@ export default function JobDetailsPage() {
 
   }, [params?.id, router]);
 
-  // BOOK JOB
   const bookJob = async () => {
 
     try {
@@ -102,7 +99,7 @@ export default function JobDetailsPage() {
     }
   };
 
-  
+
 const markDone = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -151,7 +148,7 @@ const closeJob = async () => {
   if (loading) {
 
     return (
-      <div className="p-10">
+      <div className="mx-auto max-w-4xl px-6 py-16 text-base text-neutral-500 animate-pulse">
         Loading...
       </div>
     );
@@ -160,7 +157,7 @@ const closeJob = async () => {
   if (!job) {
 
     return (
-      <div className="p-10">
+      <div className="mx-auto max-w-4xl px-6 py-16 text-base text-neutral-500">
         Job not found
       </div>
     );
@@ -169,79 +166,130 @@ const closeJob = async () => {
 const isOwner =
   currentUser?.id &&
   job.user &&
-  String(currentUser.id) === String(job.user);
+  String(currentUser.id) ===
+    String(
+      typeof job.user === "object"
+        ? (job.user as any)._id
+        : job.user
+    );
 
 const isBookedUser =
   currentUser?.id &&
   job.bookedBy &&
-  String(currentUser.id) === String(job.bookedBy);
+  String(currentUser.id) ===
+    String(
+      typeof job.bookedBy === "object"
+        ? (job.bookedBy as any)._id
+        : job.bookedBy
+    );
+
+console.log("CURRENT USER:", currentUser);
+
+console.log("JOB USER:", job.user);
+
+console.log("BOOKED BY:", job.bookedBy);
+
+console.log("IS OWNER:", isOwner);
+
+console.log("IS BOOKED USER:", isBookedUser);
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "OPEN":
+      case "ACTIVE":
+        return "text-emerald-600 bg-emerald-50 border-emerald-200";
+      case "IN_PROGRESS":
+        return "text-blue-600 bg-blue-50 border-blue-200";
+      case "DONE":
+        return "text-purple-600 bg-purple-50 border-purple-200";
+      default:
+        return "text-neutral-600 bg-neutral-50 border-neutral-200";
+    }
+  };
 
   return (
-    <div className="p-10 max-w-3xl mx-auto">
+    <div className="mx-auto max-w-4xl px-6 py-12">
 
-      <h1 className="text-4xl font-bold mb-6">
-        {job.title}
-      </h1>
+      <div className="rounded-2xl border border-neutral-200 bg-white p-8 md:p-10 shadow-md">
+        
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-100 pb-6 mb-6">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">
+              Category
+            </span>
+            <p className="text-lg font-bold text-neutral-800 mt-0.5">
+              {job.category}
+            </p>
+          </div>
+          
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold uppercase tracking-wider shadow-sm ${getStatusColor(job.status)}`}>
+            <span className="h-2 w-2 rounded-full bg-current" />
+            {job.status}
+          </span>
+        </div>
 
-      <div className="space-y-4 text-lg">
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">
+            {job.title}
+          </h1>
+          
+          <div className="mt-4 flex items-center gap-2 text-base font-semibold text-neutral-500">
+            <svg className="h-5 w-5 text-neutral-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{job.location}</span>
+          </div>
+        </div>
 
-        <p>
-          <strong>Description:</strong>{" "}
-          {job.description}
-        </p>
+        <div className="border-t border-neutral-100 pt-6">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-3">
+            Description & Specifications
+          </h2>
+          <p className="text-lg leading-relaxed text-neutral-700 whitespace-pre-wrap font-normal">
+            {job.description}
+          </p>
+        </div>
 
-        <p>
-          <strong>Category:</strong>{" "}
-          {job.category}
-        </p>
+        <div className="mt-10 pt-6 border-t border-neutral-100 flex justify-end gap-4">
+          
+          {!isOwner &&
+            job.status === "OPEN" && (
 
-        <p>
-          <strong>Location:</strong>{" "}
-          {job.location}
-        </p>
+              <button
+                onClick={bookJob}
+                className="w-full sm:w-auto rounded-xl bg-blue-600 px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-[0.98]"
+              >
+                Book Job
+              </button>
+          )}
 
-        <p>
-          <strong>Status:</strong>{" "}
-          {job.status}
-        </p>
+
+    {isBookedUser &&
+      job.status === "IN_PROGRESS" && (
+
+        <button
+          onClick={markDone}
+          className="w-full sm:w-auto rounded-xl bg-green-600 px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:bg-green-700 active:scale-[0.98]"
+        >
+          Mark Done
+        </button>
+    )}
+
+    {isOwner &&
+      job.status === "DONE" && (
+
+        <button
+          onClick={closeJob}
+          className="w-full sm:w-auto rounded-xl bg-red-600 px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-[0.98]"
+        >
+          Close Job
+        </button>
+    )}
+
+        </div>
 
       </div>
-
-      
-      {!isOwner &&
-        job.status === "OPEN" && (
-
-          <button
-            onClick={bookJob}
-            className="bg-blue-600 text-white px-6 py-3 rounded mt-6"
-          >
-            Book Job
-          </button>
-      )}
-
-
-{isBookedUser &&
-  job.status === "IN_PROGRESS" && (
-
-    <button
-      onClick={markDone}
-      className="bg-green-600 text-white px-6 py-3 rounded mt-6"
-    >
-      Mark Done
-    </button>
-)}
-
-{isOwner &&
-  job.status === "DONE" && (
-
-    <button
-      onClick={closeJob}
-      className="bg-red-600 text-white px-6 py-3 rounded mt-6 ml-4"
-    >
-      Close Job
-    </button>
-)}
-
     </div>
   );
 }
